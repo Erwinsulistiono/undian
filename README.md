@@ -30,5 +30,13 @@ export default {
 - Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
 
 # undian
+Applikasi Undian hadiah doorprize dan grandprize is running on client side (browser) without database akses and using file.txt as their main source of data
 
-Applikasi Undian hadiah doorprize dan grandprize
+# how to use
+Create file inside public folder peserta.txt, grandprize.txt, doorprize.txt and blacklist.txt
+peserta.txt => for list of participant
+doorprize.txt => for list of doorprize (sorted from prefered doorprize to least prefered doorprize)
+grandprize.txt => for list of grandprize (sorted for most highest grandprize to lowest grandprize)
+blacklist => for list of participant that are defaulted to get least prefered doorprize
+
+visit localhost:port/welcome and ready to spin!
