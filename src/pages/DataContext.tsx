@@ -38,6 +38,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const [doorprize, setDoorprize] = useState<string[]>([]);
   const [pemenang, setPemenang] = useState<Pemenang[]>([]);
   const [blacklist, setBlacklist] = useState<string[]>([]);
+  const [doorprizeLength, setDoorprizeLength] = useState<number>(0);
+  const [stateUpdatesExecuted, setStateUpdatesExecuted] = useState(false);
 
   useEffect(() => {
     const fetchData = async (
@@ -61,22 +63,28 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    blacklist.forEach((pesertaBlacklist) => {
-      setPemenang((prevPemenang) => [
-        ...prevPemenang,
-        {
-          peserta: pesertaBlacklist,
-          hadiah: doorprize[doorprize.length - 1],
-          isGrandprize: false,
-        },
-      ]);
+    setDoorprizeLength(doorprize.length - blacklist.length);
+    console.log(doorprizeLength);
+    if (!stateUpdatesExecuted) {
+      blacklist.forEach((pesertaBlacklist) => {
+        setPemenang((prevPemenang) => [
+          ...prevPemenang,
+          {
+            peserta: pesertaBlacklist,
+            hadiah: doorprize[doorprize.length - 1],
+            isGrandprize: false,
+          },
+        ]);
 
-      setPeserta((prevPeserta) =>
-        prevPeserta.filter((value) => value !== pesertaBlacklist)
-      );
+        setPeserta((prevPeserta) =>
+          prevPeserta.filter((value) => value !== pesertaBlacklist)
+        );
 
-      setDoorprize((prevDoorprize) => prevDoorprize.slice(0, -1));
-    });
+        setDoorprize(doorprize.slice(0, doorprizeLength));
+      });
+    } else {
+      setStateUpdatesExecuted(true);
+    }
   }, [blacklist]);
 
   return (

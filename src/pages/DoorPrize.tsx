@@ -2,58 +2,31 @@ import Title from "../components/Title";
 import { useData } from "./DataContext";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/ui/Button";
-import { useState, useEffect, ReactNode } from "react";
+import { useState, ReactNode } from "react";
 import { DoorprizeLabel } from "../components/DoorprizeLabel";
 import UndianStatusBadge from "../components/UndianStatusBadges";
-import { doorprizePerSpin } from "../util/util";
+import { doorprizePerSpin, timeShuffle } from "../util/util";
+import useShuffleArray from "../hooks/useShuffleArray";
 
 const DoorPrize: React.FC = () => {
-  const [isSpinning, setSpinning] = useState(false);
   const [isAnnouncingWinner, setIsAnnouncingWinner] = useState(false);
-  const {
-    pemenang,
-    peserta,
-    doorprize,
-    grandprize,
-    setPeserta,
-    setDoorprize,
-    setPemenang,
-  } = useData();
+  const { pemenang, grandprize, setPeserta, setDoorprize, setPemenang } =
+    useData();
   const navigate = useNavigate();
   const spin = doorprizePerSpin();
+  const { doorprize, peserta, isSpinning, setIsSpinning } = useShuffleArray(
+    timeShuffle()
+  );
 
-  useEffect(() => {
-    if (isSpinning) {
-      const interval = setInterval(() => {
-        shuffleArrays();
-      }, 60);
-      return () => clearInterval(interval);
-    }
-  }, [isSpinning]);
-
-  const shuffleArray = (array: any) => {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  };
-
-  const shuffleArrays = (): void => {
-    const shuffledPesertaSubset = shuffleArray(peserta);
-    const shuffledDoorprizeSubset = shuffleArray(doorprize);
-
-    setPeserta([...shuffledPesertaSubset]);
-    setDoorprize([...shuffledDoorprizeSubset]);
-  };
-
-  const stopSpin = (): void => {
-    setSpinning(!isSpinning);
+  const handleStopSpin = (): void => {
+    setIsSpinning(!isSpinning);
     setIsAnnouncingWinner(true);
   };
 
-  const nextSpin = (): void => {
+  const handleNextSpin = (): void => {
+    let numOfSlice: number = 0;
     const currPemenang = [...Array(spin)].map((_, rowIndex) => {
+      if (doorprize[rowIndex] != undefined) numOfSlice++;
       return {
         peserta: peserta[rowIndex],
         hadiah: doorprize[rowIndex],
@@ -61,8 +34,8 @@ const DoorPrize: React.FC = () => {
       };
     });
 
-    setPeserta(peserta.slice(spin));
-    setDoorprize(doorprize.slice(spin));
+    setPeserta(peserta.slice(numOfSlice));
+    setDoorprize(doorprize.slice(numOfSlice));
     setPemenang([...pemenang, ...currPemenang]);
     if (
       peserta.slice(spin).length === 0 &&
@@ -73,19 +46,13 @@ const DoorPrize: React.FC = () => {
     setIsAnnouncingWinner(false);
   };
 
-  const prevSpin = (): void => {
-    setIsAnnouncingWinner(false);
-    const updatedPemenang = pemenang.slice(0, -1);
-    setPemenang(updatedPemenang);
-  };
-
   const buttonGroup = (): ReactNode => {
-    if (isSpinning) return <Button onClick={stopSpin}>Stop Spin</Button>;
+    if (isSpinning) return <Button onClick={handleStopSpin}>Stop Spin</Button>;
     if (isAnnouncingWinner)
       return (
         <>
-          <Button onClick={nextSpin}>Continue</Button>
-          <Button onClick={prevSpin} outline={true}>
+          <Button onClick={handleNextSpin}>Continue</Button>
+          <Button onClick={() => setIsAnnouncingWinner(false)} outline={true}>
             Re-Spin
           </Button>
         </>
@@ -95,7 +62,7 @@ const DoorPrize: React.FC = () => {
     if (doorprize.length !== 0 && grandprize.length !== 0)
       return (
         <>
-          <Button onClick={() => setSpinning(!isSpinning)}>Start Spin</Button>
+          <Button onClick={() => setIsSpinning(!isSpinning)}>Start Spin</Button>
           <Button
             onClick={() => navigate("/winner")}
             color="secondary"
@@ -121,7 +88,7 @@ const DoorPrize: React.FC = () => {
     if (doorprize.length !== 0 && grandprize.length === 0)
       return (
         <>
-          <Button onClick={() => setSpinning(!isSpinning)}>Start Spin</Button>
+          <Button onClick={() => setIsSpinning(!isSpinning)}>Start Spin</Button>
           <Button
             onClick={() => navigate("/winner")}
             color="secondary"
@@ -134,7 +101,7 @@ const DoorPrize: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-200 w-full h-full pt-10">
+    <div className="bg-gray-200 w-full h-dvh pt-10">
       <UndianStatusBadge
         countDoorprize={doorprize.length}
         countGrandprize={grandprize.length}

@@ -83,7 +83,7 @@ const GrandPrize: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-200 w-full px-16 md:px-0 h-screen">
+    <div className="bg-gray-200 w-full px-16 md:px-0 h-dvh">
       <UndianStatusBadge
         countDoorprize={doorprize.length}
         countGrandprize={grandprize.length}

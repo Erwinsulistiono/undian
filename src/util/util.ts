@@ -5,3 +5,7 @@ export const exportToPDFUtil = () => {
 export const doorprizePerSpin = () => {
   return 142;
 };
+
+export const timeShuffle = () => {
+  return 60;
+};
